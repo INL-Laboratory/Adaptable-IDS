@@ -1,0 +1,102 @@
+{
+	"vectorize_friday/benign": {
+		"label": -1,
+		"path": "vectorize_friday/benign/"
+	},
+	"attack_bot": {
+		"label": -1,
+		"path": "vectorize_friday/attack_bot/"
+	},
+	"attack_DDOS": {
+		"label": -1,
+		"path": "vectorize_friday/attack_DDOS/"
+	},
+	"attack_portscan": {
+		"label": -1,
+		"path": "vectorize_friday/attack_portscan/"
+	},
+	"Benign_Wednesday": {
+		"label": -1,
+		"path": "newwednesday/vectorize/Benign_Wednesday/"
+	},
+	"DOS_SlowHttpTest": {
+		"label": -1,
+		"path": "newwednesday/vectorize/DOS_SlowHttpTest/"
+	},
+	"DOS_SlowLoris": {
+		"label": -1,
+		"path": "newwednesday/vectorize/DOS_SlowLoris/"
+	},
+	"DOS_Hulk": {
+		"label": -1,
+		"path": "newwednesday/vectorize/DOS_Hulk/"
+	},
+	"DOS_GoldenEye": {
+		"label": -1,
+		"path": "newwednesday/vectorize/DOS_GoldenEye/"
+	},
+	"FTPPatator": {
+		"label": -1,
+		"path": "tuesday/vectorize/FTPPatator/"
+	},
+	"SSHPatator": {
+		"label": -1,
+		"path": "tuesday/vectorize/SSHPatator/"
+	},
+	"Web_BruteForce": {
+		"label": -1,
+		"path": "newthursday/vectorize/Web_BruteForce/"
+	},
+	"Web_SQLInjection": {
+		"label": -1,
+		"path": "newthursday/vectorize/Web_SQLInjection/"
+	},
+	"Web_XSS": {
+		"label": -1,
+		"path": "newthursday/vectorize/Web_XSS/"
+	},
+	"Inflitration": {
+		"label": -1,
+		"path": "vectorize_thursday/attack_infilteration/"
+	},
+	"2018-Benign": {
+		"label": -1,
+		"path": "Friday-16/Benign/"
+	},
+	"2018-Bot": {
+		"label": -1,
+		"path": "Friday-02/Bot/"
+	},
+	"2018-Web": {
+		"label": -1,
+		"path": "Friday-23/Web/"
+	},
+	"2018-SQL": {
+		"label": -1,
+		"path": "Friday-23/SQL Injection/"
+	},
+	"2018-Infilteration": {
+		"label": -1,
+		"path": "Thursday-01/Infilteration/"
+	},
+	"2018-GoldenEye": {
+		"label": -1,
+		"path": "Thursday-15/DoS attacks-GoldenEye"
+	},
+	"2018-SlowLoris": {
+		"label": -1,
+		"path": "Thursday-15/DoS attacks-Slowloris"
+	},
+	"2018-DDoS": {
+		"label": -1,
+		"path": "Tuesday-20/DDoS attacks-LOIC-HTTP"
+	},
+	"2018-FTP": {
+		"label": -1,
+		"path": "Wednesday-14/FTP-BruteForce"
+	},
+	"2018-SSH": {
+		"label": -1,
+		"path": "Wednesday-14/SSH-BruteForce"
+	}
+}

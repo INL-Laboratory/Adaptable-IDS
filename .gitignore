@@ -1,0 +1,7 @@
+saved_model*/
+*.pyc
+__pycache__
+checkpoint
+*.log
+*.pkl
+*.csv
