@@ -9,10 +9,10 @@ python3 main.py --arch CNN --validation_mode OpenMax --loss_function softmax --t
 
 The available options are:
 ```bash
---arch: CNN, LSTM                            --- default is CNN
---validation_mode: DOC, DOC++, OpenMax       --- default is DOC++
---loss_function: 1-vs-rest, cross-entropy    --- default is 1-vs-rest
---target: classification, clustering         --- default is classification
+--arch: CNN, LSTM                                --- default is CNN
+--validation_mode: DOC, DOC++, OpenMax, CROSR    --- default is DOC++
+--loss_function: 1-vs-rest, cross-entropy        --- default is 1-vs-rest
+--target: classification, clustering             --- default is classification
 ```
 
 
