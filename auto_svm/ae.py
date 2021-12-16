@@ -10,7 +10,6 @@ from sklearn import metrics
 from sklearn.utils import shuffle
 import pickle
 import random
-
 from clustering import *
 
 import config
@@ -30,7 +29,7 @@ batch_size = 100
 flow_size = config.flow_size
 pkt_size = config.pkt_size
 num_input = flow_size * pkt_size
-labels = config.labels
+labels = config.all_labels
 n_classes = config.n_classes
 
 
@@ -182,7 +181,6 @@ class AutoSVM(object):
     def load_encoded_data(self, file_name='encoded_datas'):
         with open(file_name + '.pkl', 'rb') as f:
             self.datas = pickle.load(f)
-        
         return self.datas
 
 

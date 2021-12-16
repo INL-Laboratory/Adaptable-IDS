@@ -60,7 +60,7 @@ def run(model, train_set=[], test_sets=[]):
         if validation_mode == 'OpenMax':
             model.calc_mean_and_dist(dataController, 4)
         logging.info("Validate on: {}".format(test_set))
-        out = model.validate(dataController, 4, mode=validation_mode)
+        out = model.validate(dataController, 4)
         res[test_key] = out
     
     return res
@@ -80,7 +80,7 @@ def test_clustering(model, train_data, test_data):
 
     testDataController = DataController(batch_size=batch_size, data_list=test_data)
     model.load()
-    if validation_mode == 'OpenMax':
+    if validation_mode == 'OpenMax' or validation_mode == 'CROSR':
             model.calc_mean_and_dist(trainDataController, 4)
 
     logging.info("Clustering on: {}".format(test_data))
@@ -105,7 +105,7 @@ def test_clustering(model, train_data, test_data):
     logging.info('--train data clsutering cluster_label_counts {}'.format(cluster_label_counts))
 
 
-model = Model(input_size, n_classes, batch_size, loss_function, logging)
+model = Model(input_size, n_classes, batch_size, loss_function, logging, validation_mode)
 if arch == 'LSTM':
     model.build_lstm_model()
 elif arch == 'CNN':

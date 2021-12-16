@@ -8,9 +8,10 @@ batch_size = 20
 epochs = 20
 doc_uknown_threshold = 0.8
 openmax_uknown_threshold = 0.9
+crosr_uknown_threshold = 0.97
 
-all_labels = ['vectorize_friday/benign', 'attack_bot', 'attack_DDOS',\
-            'attack_portscan', 'Benign_Wednesday', 'DOS_SlowHttpTest',\
+all_labels = ['attack_bot', 'attack_DDOS',\
+            'attack_portscan', 'DOS_SlowHttpTest',\
             'DOS_SlowLoris', 'DOS_Hulk', 'DOS_GoldenEye', 'FTPPatator',\
             'SSHPatator', 'Web_BruteForce', 'Web_XSS']
 

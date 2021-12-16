@@ -30,12 +30,12 @@ def compute_distance(
     # print ('channel',channel)
 
     query_channel = np.array(query_channel)
-    mean_vec = np.reshape(mean_vec, (4, 1))
+    # mean_vec = np.reshape(mean_vec, (4, 1))
     # print ('shape',mean_vec.shape)
     # exit()
     # print (distance_type)
     if distance_type == 'eucos':
-        # print (mean_vec.shape,query_channel.shape)
+        # print (mean_vec.shape, query_channel.shape)
         query_distance = spd.euclidean(
             mean_vec, query_channel)/200. + spd.cosine(mean_vec, query_channel)
     elif distance_type == 'euclidean':

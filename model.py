@@ -13,7 +13,7 @@ from openmax_utils.evt_fitting import weibull_tailfitting
 from sklearn.metrics import accuracy_score
 
 from clustering import *
-
+from ae import *
 
 import config
 flow_size = config.flow_size
@@ -22,6 +22,7 @@ learning_rate = config.learning_rate
 epochs = config.epochs
 doc_uknown_threshold = config.doc_uknown_threshold
 openmax_uknown_threshold = config.openmax_uknown_threshold
+crosr_uknown_threshold = config.crosr_uknown_threshold
 n_classes = config.n_classes
 label = [i for i in range(n_classes)]
 
@@ -48,13 +49,19 @@ def build_weibull(mean, distance, tail):
 
 
 class Model(object):
-    def __init__(self, input_size, n_classes, batch_size, loss_function, logging):
+    def __init__(self, input_size, n_classes, batch_size, loss_function, logging, validation_mode='DOC'):
         self.input_size = input_size
         self.n_classes = n_classes
         self.batch_size = batch_size
         self.loss_function = loss_function
         self.sess = tf.InteractiveSession()
         self.logger = logging
+        self.validation_mode = validation_mode
+        if self.validation_mode == 'CROSR':
+            self.encoder = AutoSVM(logging)
+            self.encoder.setupModel()
+            self.encoder.load_encoded_data()
+            self.encoder.load()
         
     
     def build_base(self):
@@ -220,8 +227,6 @@ class Model(object):
             openmax = None
             softmax = None
             for tail in tail_list:
-                # print ('Alpha ',alpha,' Tail ',tail)
-                # print ('++++++++++++++++++++++++++++')
                 weibull_model = build_weibull(self.feature_mean, self.feature_distance, tail)
                 openmax, softmax = recalibrate_scores(
                     weibull_model, label, data, alpharank=alpha)
@@ -229,7 +234,21 @@ class Model(object):
         #     openmax = 'Unknown'
         # print('Prediction openmax: ', openmax)
         return softmax, openmax
-        
+
+    def get_non_zero_vecntor(self, vector):
+        non_zero_encoded = []
+        for v in vector:
+            non_zero = [nz for nz in v if nz != 0]
+            if len(non_zero) < 50:
+                non_zero.extend([0 for i in range(0, 100-len(non_zero))])
+            elif len(non_zero) > 50:
+                non_zero = non_zero[:50]
+            non_zero = np.array(non_zero)
+            non_zero_encoded.append(non_zero)
+        non_zero_encoded = np.array(non_zero_encoded)
+
+        return non_zero_encoded
+
     def calc_mean_and_dist(self, dataController, unknown_label):
         dataController.reset()
         self.feature_mean = [[] for i in range(self.n_classes)]
@@ -244,8 +263,15 @@ class Model(object):
             feed_dict_batch = {self.x: x,
                                self.y: y,
                               }
-            output, activationVector = self.sess.run((self.output, self.activationVector), feed_dict=feed_dict_batch)
-            
+            output, penUltimateActivationVector = self.sess.run((self.output, self.activationVector), feed_dict=feed_dict_batch)
+            if self.validation_mode == 'CROSR':
+                encoded_vector = self.encoder.encode(x)
+                non_zero_encoded = self.get_non_zero_vecntor(encoded_vector)
+                activationVector = np.concatenate([penUltimateActivationVector, non_zero_encoded], axis=1)
+            else:
+                activationVector = penUltimateActivationVector
+            # print(activationVector.shape)
+
             for i in range(self.batch_size):
                 if y[i] == unknown_label:
                     continue
@@ -264,7 +290,7 @@ class Model(object):
                     for key in distance.keys():
                         self.feature_distance[y[i]][key] += distance[key]
 
-    def validate(self, dataController, unknown_label, mode='DOC'):
+    def validate(self, dataController, unknown_label):
         # print('---Runnning validate function---')
         dataController.reset()
         all_acc = []
@@ -283,9 +309,9 @@ class Model(object):
             feed_dict_batch = {self.x: x,
                                self.y: y,
                               }
-            output, activationVector = self.sess.run((self.output, self.activationVector), feed_dict=feed_dict_batch)
+            output, penUltimateActivationVector = self.sess.run((self.output, self.activationVector), feed_dict=feed_dict_batch)
             
-            if mode == 'DOC':
+            if self.validation_mode == 'DOC' or self.validation_mode == 'DOC++':
                 max_indices = np.argmax(output, axis=1)
                 for i in range(self.batch_size):
                     # if y[i] == unknown_label: print('-', y[i], max_indices[i], output[i][max_indices[i]])
@@ -315,7 +341,18 @@ class Model(object):
                     if res[y[i]][0] != 0:
                         res[y[i]][2] = res[y[i]][1]/res[y[i]][0] * 100
 
-            elif mode == 'OpenMax':
+            elif self.validation_mode == 'OpenMax' or self.validation_mode == 'CROSR':
+                unknown_threshold = None
+
+                if self.validation_mode == 'CROSR':
+                    encoded_vector = self.encoder.encode(x)
+                    non_zero_encoded = self.get_non_zero_vecntor(encoded_vector)
+                    activationVector = np.concatenate([penUltimateActivationVector, non_zero_encoded], axis=1)
+                    unknown_threshold = crosr_uknown_threshold
+                else:
+                    activationVector = penUltimateActivationVector
+                    unknown_threshold = openmax_uknown_threshold
+
                 max_indices = np.argmax(output, axis=1)
                 for i in range(self.batch_size):
                     data = {}
@@ -325,9 +362,12 @@ class Model(object):
                     openmax_predict = np.argmax(openmax_scores)
                     softmax_predict = np.argmax(softmax_scores)
 
-                    # self.logger.info("Befor Threshold --> Truth: {}    OpenMax: {}     Softmax: {}".format(\
-                    #                 y[i], openmax_predict, softmax_predict))
-                    # if y[i] == unknown_label and 
+                    # if y[i] == unknown_label:
+                        # self.logger.info("Befor Threshold --> Truth: {}    OpenMax: {}     Softmax: {}".format(\
+                        #         y[i], openmax_predict, softmax_predict))
+                        # self.logger.info(openmax_scores)
+                    # print(softmax_predict)
+
                     res_before_threshold[y[i]][0] += 1
                     if y[i] == openmax_predict:
                         res_before_threshold[y[i]][1] += 1
@@ -338,7 +378,7 @@ class Model(object):
                         res_before_threshold[y[i]][2] = res_before_threshold[y[i]][1]/res_before_threshold[y[i]][0] * 100
 
                     if openmax_predict == unknown_label or \
-                       openmax_scores[openmax_predict] < openmax_uknown_threshold:
+                       openmax_scores[openmax_predict] < unknown_threshold:
                         max_indices[i] = unknown_label
                     # self.logger.info('----------------')
                     # self.logger.info('openmax_scores: {}'.format(openmax_scores))
